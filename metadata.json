@@ -1,6 +1,6 @@
 {
   "name": "Aplikasi Kasir POS Pro",
-  "description": "Sistem Point of Sale (POS) lengkap dengan Kasir, Manajemen Inventori Stok & Barcode, Riwayat Transaksi & Retur, Laporan Keuangan & Laba Bersih, Cetak Struk Bluetooth Thermal, Manajemen Karyawan, dan Sinkronisasi Google Sheets.",
+  "description": "Sistem Point of Sale (POS) lengkap dengan Kasir, Manajemen Produk & Stok (Khusus Pemilik dengan alur Produksi Dapur & Pembelian Supplier), Riwayat Transaksi & Retur, Laporan Keuangan & Laba Bersih, Cetak Struk Bluetooth Thermal ESC/POS, Manajemen Karyawan, dan Sinkronisasi Google Sheets.",
   "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

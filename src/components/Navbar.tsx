@@ -48,7 +48,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     ownerOnly?: boolean;
   }> = [
     { id: 'pos', label: 'Kasir (POS)', icon: ShoppingCart },
-    { id: 'inventory', label: 'Stok & Produk', icon: Package },
+    { id: 'inventory', label: 'Manajemen Produk', icon: Package, ownerOnly: true },
     { id: 'history', label: 'Riwayat Transaksi', icon: History },
     { id: 'reports', label: 'Laporan Keuangan', icon: BarChart3, ownerOnly: true },
     { id: 'settings', label: 'Pengaturan Toko', icon: Settings, ownerOnly: true },

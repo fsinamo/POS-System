@@ -40,7 +40,9 @@ function POSAppContent() {
           />
         )}
 
-        {activeTab === 'inventory' && <InventoryScreen />}
+        {activeTab === 'inventory' && (
+          <InventoryScreen onOpenPinModal={() => setIsPinModalOpen(true)} />
+        )}
 
         {activeTab === 'history' && <HistoryScreen />}
 

@@ -43,6 +43,22 @@ interface POSContextType {
   addCategory: (name: string) => void;
   deleteCategory: (name: string) => void;
   adjustStock: (adjustment: Omit<StockAdjustment, 'id' | 'createdAt' | 'performedBy'>) => void;
+  recordProduction: (params: {
+    productId: string;
+    quantity: number;
+    costPerUnit?: number;
+    batchNumber?: string;
+    notes?: string;
+  }) => void;
+  recordPurchase: (params: {
+    productId: string;
+    quantity: number;
+    buyPricePerUnit: number;
+    supplierName?: string;
+    invoiceNumber?: string;
+    notes?: string;
+    updateProductBuyPrice?: boolean;
+  }) => void;
   stockAdjustments: StockAdjustment[];
 
   // Cart
@@ -154,7 +170,18 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Products
   const [products, setProducts] = useState<Product[]>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEYS.PRODUCTS);
-    return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
+    if (!saved) return INITIAL_PRODUCTS;
+    try {
+      const parsed: Product[] = JSON.parse(saved);
+      return parsed.map((p) => ({
+        ...p,
+        procurementType:
+          p.procurementType ||
+          (p.category === 'Makanan' || p.category === 'Minuman' ? 'PRODUKSI' : 'PEMBELIAN'),
+      }));
+    } catch {
+      return INITIAL_PRODUCTS;
+    }
   });
 
   // Categories
@@ -283,8 +310,15 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Product CRUD
   const addProduct = (newProduct: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
     const id = `prod-${Date.now()}`;
+    const defaultProcurement =
+      newProduct.procurementType ||
+      (newProduct.category === 'Makanan' || newProduct.category === 'Minuman'
+        ? 'PRODUKSI'
+        : 'PEMBELIAN');
+
     const product: Product = {
       ...newProduct,
+      procurementType: defaultProcurement,
       id,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -293,15 +327,21 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     // Record initial stock if > 0
     if (product.stock > 0) {
+      const isProduction = product.procurementType === 'PRODUKSI';
       const adjustment: StockAdjustment = {
         id: `adj-${Date.now()}`,
         productId: product.id,
         productName: product.name,
-        type: 'IN',
+        type: isProduction ? 'PRODUKSI' : 'PEMBELIAN',
+        sourceType: product.procurementType,
         previousStock: 0,
         adjustedQty: product.stock,
         finalStock: product.stock,
-        reason: 'Stok Awal Produk Baru',
+        costPerUnit: product.buyPrice,
+        totalCost: product.stock * product.buyPrice,
+        reason: isProduction
+          ? 'Stok Awal Produk Baru (Hasil Produksi Sendiri)'
+          : 'Stok Awal Produk Baru (Pembelian Supplier/Kulakan)',
         createdAt: new Date().toISOString(),
         performedBy: currentUser.name,
       };
@@ -331,30 +371,147 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCategories((prev) => prev.filter((c) => c !== name));
   };
 
+  // Stock Opname & Manual Adjustments (Khusus Pemilik)
   const adjustStock = ({
     productId,
     productName,
     type,
+    sourceType,
     previousStock,
     adjustedQty,
     finalStock,
     reason,
+    costPerUnit,
+    totalCost,
+    supplierOrBatch,
+    invoiceNumber,
   }: Omit<StockAdjustment, 'id' | 'createdAt' | 'performedBy'>) => {
     const newAdjustment: StockAdjustment = {
       id: `adj-${Date.now()}`,
       productId,
       productName,
       type,
+      sourceType: sourceType || (type === 'OPNAME' ? 'OPNAME' : 'PENYESUAIAN_MANUAL'),
       previousStock,
       adjustedQty,
       finalStock,
       reason,
+      costPerUnit,
+      totalCost,
+      supplierOrBatch,
+      invoiceNumber,
       createdAt: new Date().toISOString(),
       performedBy: currentUser.name,
     };
 
     setStockAdjustments((prev) => [newAdjustment, ...prev]);
     updateProduct(productId, { stock: finalStock });
+  };
+
+  // 1. Penambahan Stok Melalui Produksi (Makanan, Minuman, Olahan Dapur)
+  const recordProduction = ({
+    productId,
+    quantity,
+    costPerUnit,
+    batchNumber,
+    notes,
+  }: {
+    productId: string;
+    quantity: number;
+    costPerUnit?: number;
+    batchNumber?: string;
+    notes?: string;
+  }) => {
+    const prod = products.find((p) => p.id === productId);
+    if (!prod || quantity <= 0) return;
+
+    const unitCost = costPerUnit !== undefined && costPerUnit >= 0 ? costPerUnit : prod.buyPrice;
+    const totalCost = quantity * unitCost;
+    const finalStock = prod.stock + quantity;
+
+    const adjustment: StockAdjustment = {
+      id: `adj-prod-${Date.now()}`,
+      productId: prod.id,
+      productName: prod.name,
+      type: 'PRODUKSI',
+      sourceType: 'PRODUKSI',
+      previousStock: prod.stock,
+      adjustedQty: quantity,
+      finalStock,
+      costPerUnit: unitCost,
+      totalCost,
+      supplierOrBatch: batchNumber || `Batch ${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`,
+      reason: notes?.trim()
+        ? `Hasil Produksi Dapur: ${notes.trim()}`
+        : `Hasil Produksi Dapur / Olahan (+${quantity} ${prod.unit})`,
+      createdAt: new Date().toISOString(),
+      performedBy: currentUser.name,
+    };
+
+    setStockAdjustments((prev) => [adjustment, ...prev]);
+    updateProduct(prod.id, {
+      stock: finalStock,
+      buyPrice: unitCost > 0 ? unitCost : prod.buyPrice,
+    });
+  };
+
+  // 2. Penambahan Stok Melalui Pembelian (Produk Jadi, Kulakan Supplier/Distributor)
+  const recordPurchase = ({
+    productId,
+    quantity,
+    buyPricePerUnit,
+    supplierName,
+    invoiceNumber,
+    notes,
+    updateProductBuyPrice = true,
+  }: {
+    productId: string;
+    quantity: number;
+    buyPricePerUnit: number;
+    supplierName?: string;
+    invoiceNumber?: string;
+    notes?: string;
+    updateProductBuyPrice?: boolean;
+  }) => {
+    const prod = products.find((p) => p.id === productId);
+    if (!prod || quantity <= 0) return;
+
+    const unitCost = buyPricePerUnit >= 0 ? buyPricePerUnit : prod.buyPrice;
+    const totalCost = quantity * unitCost;
+    const finalStock = prod.stock + quantity;
+
+    const descParts: string[] = [];
+    if (supplierName?.trim()) descParts.push(`Supplier: ${supplierName.trim()}`);
+    if (invoiceNumber?.trim()) descParts.push(`Faktur #${invoiceNumber.trim()}`);
+    if (notes?.trim()) descParts.push(notes.trim());
+
+    const reason = descParts.length > 0
+      ? `Pembelian Barang Masuk (${descParts.join(' • ')})`
+      : `Pembelian Barang Masuk / Kulakan (+${quantity} ${prod.unit})`;
+
+    const adjustment: StockAdjustment = {
+      id: `adj-buy-${Date.now()}`,
+      productId: prod.id,
+      productName: prod.name,
+      type: 'PEMBELIAN',
+      sourceType: 'PEMBELIAN',
+      previousStock: prod.stock,
+      adjustedQty: quantity,
+      finalStock,
+      costPerUnit: unitCost,
+      totalCost,
+      supplierOrBatch: supplierName?.trim() || 'Supplier',
+      invoiceNumber: invoiceNumber?.trim() || undefined,
+      reason,
+      createdAt: new Date().toISOString(),
+      performedBy: currentUser.name,
+    };
+
+    setStockAdjustments((prev) => [adjustment, ...prev]);
+    updateProduct(prod.id, {
+      stock: finalStock,
+      ...(updateProductBuyPrice && unitCost > 0 ? { buyPrice: unitCost } : {}),
+    });
   };
 
   // Cart operations
@@ -925,6 +1082,8 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addCategory,
         deleteCategory,
         adjustStock,
+        recordProduction,
+        recordPurchase,
         stockAdjustments,
         cart,
         addToCart,

@@ -1,13 +1,15 @@
 export type PaymentMethod = 'TUNAI' | 'QRIS' | 'HUTANG';
 export type TransactionStatus = 'LUNAS' | 'HUTANG' | 'RETUR_SEBAGIAN' | 'RETUR_TOTAL';
 export type UserRole = 'OWNER' | 'KASIR';
+export type ProcurementType = 'PRODUKSI' | 'PEMBELIAN';
 
 export interface Product {
   id: string;
   name: string;
   category: string;
   barcode: string;
-  buyPrice: number; // HPP (Harga Pokok Penjualan / Modal)
+  procurementType: ProcurementType; // PRODUKSI: Makanan, Minuman, Olahan | PEMBELIAN: Produk Jadi, Supplier
+  buyPrice: number; // HPP (Harga Pokok Penjualan / Modal / Biaya Produksi per unit)
   sellPrice: number; // Harga Jual ke Konsumen
   stock: number;
   minStockAlert: number;
@@ -72,11 +74,16 @@ export interface StockAdjustment {
   id: string;
   productId: string;
   productName: string;
-  type: 'IN' | 'OUT' | 'OPNAME'; // IN = Tambah Masuk, OUT = Rusak/Hilang/Buang, OPNAME = Koreksi Fisik
+  type: 'IN' | 'OUT' | 'OPNAME' | 'PRODUKSI' | 'PEMBELIAN'; // IN = Masuk Umum, OUT = Rusak/Hilang, OPNAME = Koreksi Fisik, PRODUKSI = Produksi Makanan/Minuman, PEMBELIAN = Kulakan Supplier
+  sourceType?: ProcurementType | 'OPNAME' | 'PENYESUAIAN_MANUAL' | 'RETUR';
   previousStock: number;
   adjustedQty: number; // + / -
   finalStock: number;
   reason: string;
+  costPerUnit?: number; // Biaya per unit (HPP atau Biaya Masak/Produksi)
+  totalCost?: number; // Total Biaya (adjustedQty * costPerUnit)
+  supplierOrBatch?: string; // Nama Supplier atau Nomor Batch Masak
+  invoiceNumber?: string; // No Nota/Faktur Pembelian
   createdAt: string;
   performedBy: string;
 }
