@@ -378,7 +378,7 @@ export const SettingsScreen: React.FC = () => {
               Pengaturan Toko & Sistem
             </h1>
             <p className="text-xs text-slate-500">
-              Konfigurasi profil struk, printer bluetooth, karyawan kasir, dan integrasi Google Sheets.
+              Konfigurasi profil struk, printer bluetooth, akun user kasir & admin, dan integrasi Google Sheets.
             </p>
           </div>
         </div>
@@ -389,7 +389,7 @@ export const SettingsScreen: React.FC = () => {
         {[
           { id: 'store', label: 'Profil Toko', icon: Store },
           { id: 'devices', label: 'Perangkat & Printer', icon: Printer },
-          { id: 'employees', label: 'Manajemen Karyawan', icon: Users },
+          { id: 'employees', label: 'Manajemen User', icon: Users },
           { id: 'sheets', label: 'Google Sheets (Apps Script)', icon: Cloud },
           { id: 'backup', label: 'Backup & Database Lokal', icon: Database },
         ].map((tab) => {
@@ -1240,7 +1240,7 @@ export const SettingsScreen: React.FC = () => {
         </div>
       )}
 
-      {/* SUBTAB 3: Manajemen Karyawan & Hak Akses Kasir vs Pemilik */}
+      {/* SUBTAB 3: Manajemen User & Hak Akses Kasir vs Admin */}
       {subTab === 'employees' && (
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-5">
           <div className="flex justify-between items-center border-b border-slate-100 pb-4">
@@ -1250,10 +1250,10 @@ export const SettingsScreen: React.FC = () => {
               </div>
               <div>
                 <h3 className="font-bold text-base text-slate-900">
-                  Daftar Karyawan & Hak Akses
+                  Daftar User & Hak Akses
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Akun Pemilik (Akses penuh & Laporan Keuangan) vs Akun Kasir (Khusus transaksi)
+                  Akun Admin (Akses penuh & Laporan Keuangan) vs Akun Kasir (Khusus transaksi)
                 </p>
               </div>
             </div>
@@ -1263,7 +1263,7 @@ export const SettingsScreen: React.FC = () => {
               className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs"
             >
               <Plus className="w-4 h-4" />
-              Tambah Karyawan
+              Tambah User
             </button>
           </div>
 
@@ -1300,7 +1300,7 @@ export const SettingsScreen: React.FC = () => {
                             user.role === 'OWNER' ? 'text-amber-700' : 'text-slate-600'
                           }`}
                         >
-                          Role: {user.role === 'OWNER' ? '👑 Pemilik' : '👩‍💼 Kasir'}
+                          Role: {user.role === 'OWNER' ? '👑 Admin' : '👩‍💼 Kasir'}
                         </span>
                         <span>•</span>
                         <span>PIN: ****</span>
@@ -1313,7 +1313,7 @@ export const SettingsScreen: React.FC = () => {
                       <button
                         onClick={() => deleteUser(user.id)}
                         className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg"
-                        title="Hapus Karyawan"
+                        title="Hapus User"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -1324,16 +1324,16 @@ export const SettingsScreen: React.FC = () => {
             })}
           </div>
 
-          {/* Add Employee Dialog */}
+          {/* Add User Dialog */}
           {isAddUserOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in">
               <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4 border border-slate-200">
-                <h3 className="font-bold text-base text-slate-900">Tambah Akun Karyawan Baru</h3>
+                <h3 className="font-bold text-base text-slate-900">Tambah Akun User Baru</h3>
 
                 <form onSubmit={handleAddEmployee} className="space-y-3">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">
-                      Nama Karyawan
+                      Nama User
                     </label>
                     <input
                       type="text"
@@ -1356,7 +1356,7 @@ export const SettingsScreen: React.FC = () => {
                         className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-emerald-500"
                       >
                         <option value="KASIR">Kasir</option>
-                        <option value="OWNER">Pemilik (Full Access)</option>
+                        <option value="OWNER">Admin (Full Access)</option>
                       </select>
                     </div>
 
@@ -1388,7 +1388,7 @@ export const SettingsScreen: React.FC = () => {
                       type="submit"
                       className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm"
                     >
-                      Simpan Karyawan
+                      Simpan User
                     </button>
                   </div>
                 </form>
@@ -1410,7 +1410,7 @@ export const SettingsScreen: React.FC = () => {
                 Penyimpanan Online ke Google Sheets
               </h3>
               <p className="text-xs text-slate-500">
-                Sinkronkan setiap nota penjualan otomatis ke Google Spreadsheet pemilik toko secara gratis.
+                Sinkronkan setiap nota penjualan otomatis ke Google Spreadsheet admin toko secara gratis.
               </p>
             </div>
           </div>

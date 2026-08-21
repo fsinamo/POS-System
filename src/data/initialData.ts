@@ -225,7 +225,7 @@ export const INITIAL_PRODUCTS: Product[] = [
 export const INITIAL_USERS: UserAccount[] = [
   {
     id: 'user-owner',
-    name: 'Budi Santoso (Pemilik)',
+    name: 'Budi Santoso (Admin)',
     role: 'OWNER',
     pin: '1234',
     avatar: '👑',

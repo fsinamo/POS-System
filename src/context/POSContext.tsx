@@ -371,7 +371,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCategories((prev) => prev.filter((c) => c !== name));
   };
 
-  // Stock Opname & Manual Adjustments (Khusus Pemilik)
+  // Stock Opname & Manual Adjustments (Khusus Admin)
   const adjustStock = ({
     productId,
     productName,

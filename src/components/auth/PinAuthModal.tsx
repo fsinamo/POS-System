@@ -155,7 +155,7 @@ export const PinAuthModal: React.FC<PinAuthModalProps> = ({
           <div className="pt-2 text-[11px] text-slate-400 border-t border-slate-100 space-y-1">
             <span className="font-bold text-slate-500 block">PIN Akun Demo:</span>
             <div className="flex justify-center gap-3 text-slate-600">
-              <span>Pemilik: <strong className="font-mono text-emerald-700">1234</strong></span>
+              <span>Admin: <strong className="font-mono text-emerald-700">1234</strong></span>
               <span>Kasir 1: <strong className="font-mono text-slate-700">0000</strong></span>
               <span>Kasir 2: <strong className="font-mono text-slate-700">1111</strong></span>
             </div>

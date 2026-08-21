@@ -194,7 +194,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               id="btn-user-switch"
               onClick={onOpenPinModal}
               className="flex items-center gap-2 pl-2 pr-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700/80 transition-colors"
-              title="Ganti Pengguna / Masukkan PIN Pemilik"
+              title="Ganti Pengguna / Masukkan PIN Admin"
             >
               <div className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-xs">
                 {currentUser.avatar || (currentUser.role === 'OWNER' ? '👑' : '👤')}
@@ -206,7 +206,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <div className="flex items-center gap-1">
                   {currentUser.role === 'OWNER' ? (
                     <span className="text-[10px] text-amber-400 font-medium flex items-center gap-0.5">
-                      <ShieldCheck className="w-2.5 h-2.5" /> Pemilik
+                      <ShieldCheck className="w-2.5 h-2.5" /> Admin
                     </span>
                   ) : (
                     <span className="text-[10px] text-slate-400 font-medium flex items-center gap-0.5">

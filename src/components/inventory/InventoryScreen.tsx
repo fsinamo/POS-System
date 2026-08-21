@@ -127,7 +127,7 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({ onOpenPinModal
     updateProductBuyPrice: true,
   });
 
-  // Stock Opname Form State (Khusus Pemilik)
+  // Stock Opname Form State (Khusus Admin)
   const [adjustType, setAdjustType] = useState<'IN' | 'OUT' | 'OPNAME'>('IN');
   const [adjustQty, setAdjustQty] = useState<number>(1);
   const [adjustReason, setAdjustReason] = useState<string>('Restock Barang');
@@ -136,7 +136,7 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({ onOpenPinModal
   const [newCatName, setNewCatName] = useState('');
 
   // ----------------------------------------------------
-  // KETENTUAN 1: HAK AKSES KHUSUS PEMILIK
+  // KETENTUAN 1: HAK AKSES KHUSUS ADMIN
   // ----------------------------------------------------
   if (currentUser.role !== 'OWNER') {
     return (
@@ -149,7 +149,7 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({ onOpenPinModal
           <div className="space-y-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100 text-rose-800 text-xs font-bold">
               <ShieldCheck className="w-3.5 h-3.5" />
-              Akses Dibatasi — Khusus Pemilik Toko
+              Akses Dibatasi — Khusus Admin Toko
             </div>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight">
               Manajemen Produk & Stok Terkunci
@@ -157,7 +157,7 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({ onOpenPinModal
             <p className="text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
               Sesuai ketentuan sistem, menu <strong>Manajemen Produk</strong> dan{' '}
               <strong>Penyesuaian Stok</strong> hanya dapat diakses dan diubah oleh{' '}
-              <strong>Pemilik (Owner)</strong>.
+              <strong>Admin</strong>.
             </p>
           </div>
 
@@ -182,7 +182,7 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({ onOpenPinModal
               className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition-all"
             >
               <ShieldCheck className="w-4 h-4" />
-              Masukkan PIN Pemilik (Owner)
+              Masukkan PIN Admin
             </button>
 
             <button
@@ -389,7 +389,7 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({ onOpenPinModal
       finalStock,
       costPerUnit: stockAdjustProduct.buyPrice,
       totalCost: Math.abs(qtyChange) * stockAdjustProduct.buyPrice,
-      reason: adjustReason.trim() || 'Penyesuaian Stok oleh Pemilik',
+      reason: adjustReason.trim() || 'Penyesuaian Stok oleh Admin',
     });
 
     setStockAdjustProduct(null);
@@ -493,7 +493,7 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({ onOpenPinModal
                 </h1>
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-200">
                   <ShieldCheck className="w-3.5 h-3.5 text-amber-700" />
-                  Akses Khusus Pemilik
+                  Akses Khusus Admin
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -883,17 +883,17 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({ onOpenPinModal
                             </button>
                           )}
 
-                          {/* Stock Opname / Penyesuaian Stok Button (Khusus Pemilik) */}
+                          {/* Stock Opname / Penyesuaian Stok Button (Khusus Admin) */}
                           <button
                             type="button"
                             onClick={() => {
                               setStockAdjustProduct(p);
                               setAdjustQty(1);
-                              setAdjustReason('Penyesuaian Stok Pemilik');
+                              setAdjustReason('Penyesuaian Stok Admin');
                               setAdjustType('IN');
                             }}
                             className="p-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold transition-colors"
-                            title="Penyesuaian Stok / Opname Fisik (Khusus Pemilik)"
+                            title="Penyesuaian Stok / Opname Fisik (Khusus Admin)"
                           >
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-700" />
                           </button>
@@ -1650,7 +1650,7 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = ({ onOpenPinModal
                   <div className="flex items-center gap-1.5">
                     <h3 className="font-bold text-sm text-white">Penyesuaian Stok (Opname)</h3>
                     <span className="px-1.5 py-0.2 rounded bg-amber-500 text-slate-950 text-[10px] font-black">
-                      OWNER
+                      ADMIN
                     </span>
                   </div>
                   <p className="text-[11px] text-slate-400">{stockAdjustProduct.name}</p>
